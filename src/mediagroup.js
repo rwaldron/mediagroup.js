@@ -161,6 +161,12 @@
 
 		document.addEventListener( mutation, function( event ) {
 
+			// Feature detect for mediagroup support.
+			// If Host has support, return and do nothing.
+			if ( "mediaGroup" in document.createElement("video") ) {
+				return;
+			}
+
 			var element = event.target,
 			valid = [ "AUDIO", "VIDEO" ].some(function( val ) {
 				return element.nodeName === val;
