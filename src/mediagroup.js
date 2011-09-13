@@ -16,7 +16,7 @@
 
 		return window[ rAF ]	|| function( callback, element ) {
 			window.setTimeout(function() {
-				callback( +new Date );
+				callback( +new Date() );
 			}, 1000 / 60);
 		};
 	})( window );
@@ -47,24 +47,24 @@
 		// // Dispatch events across all slaves elements
 		// events.forEach(function( type, i ) {
 		//
-		// 	// Define listeners for parent controller element
-		// 	controller.addEventListener( type, function() {
+		// // Define listeners for parent controller element
+		// controller.addEventListener( type, function() {
 		//
-		// 		var evt = document.createEvent( "Events" );
+		//   var evt = document.createEvent( "Events" );
 		//
-		// 		evt.initEvent(
-		// 			type, true, true, window
-		// 		);
+		//   evt.initEvent(
+		//     type, true, true, window
+		//   );
 		//
-		// 		// Delegate events to slaves
-		// 		slaves.forEach(function( slave ) {
-		// 			slave.dispatchEvent( evt );
-		// 		});
-		// 	});
+		//     // Delegate events to slaves
+		//   slaves.forEach(function( slave ) {
+		//     slave.dispatchEvent( evt );
+		//   });
+		// });
 		//
-		// 	if ( (i + 1) === events.length ) {
-		// 		callback();
-		// 	}
+		// if ( (i + 1) === events.length ) {
+		//     callback();
+		// }
 		// });
 
 		callback();
