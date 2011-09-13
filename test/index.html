@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>mediagroup.js Test Suite</title>
+	<link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
+	<script src="qunit/qunit.js"></script>
+	<script src="../src/mediagroup.js"></script>
+	<script src="mediagroup.unit.js"></script>
+	<style>
+	.controller + video {
+		with: 50px;
+		height:50px;
+		left: -90px;
+		top: -135px;
+		border: 1px solid black;
+		position: relative;
+	}
+	</style>
+</head>
+<body>
+	<h1 id="qunit-header">mediagroup.js Test Suite</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture">
+		<video class="controller" controls mediagroup="pip">
+			<source src="assets/popcorntest.mp4"></source>
+			<source src="assets/popcorntest.ogv"></source>
+			<source src="assets/popcorntest.webm"></source>
+		</video>
+		<video mediagroup="pip">
+			<source src="assets/popcorntest.mp4"></source>
+			<source src="assets/popcorntest.ogv"></source>
+			<source src="assets/popcorntest.webm"></source>
+		</video>
+
+	</div>
+
+	<div id="unmoved-fixture">
+		<video class="controller" controls mediagroup="pip">
+			<source src="assets/popcorntest.mp4"></source>
+			<source src="assets/popcorntest.ogv"></source>
+			<source src="assets/popcorntest.webm"></source>
+		</video>
+		<video mediagroup="pip">
+			<source src="assets/popcorntest.mp4"></source>
+			<source src="assets/popcorntest.ogv"></source>
+			<source src="assets/popcorntest.webm"></source>
+		</video>
+	</div>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>mediaGroup polyfill</title>
+	<style>
+	.controller + video {
+		with: 50px;
+		height:50px;
+		left: -90px;
+		top: -135px;
+		border: 1px solid black;
+		position: relative;
+	}
+	</style>
+	<script src="http://code.jquery.com/jquery-git.js"></script>
+	<script src="https://getfirebug.com/firebug-lite-debug.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="/css/result-light.css">
+
+
+</head>
+<body>
+
+	<video class="controller" controls mediagroup="pip">
+		<source src="assets/popcorntest.mp4"></source>
+		<source src="assets/popcorntest.ogv"></source>
+		<source src="assets/popcorntest.webm"></source>
+	</video>
+	<video mediagroup="pip">
+		<source src="assets/popcorntest.mp4"></source>
+		<source src="assets/popcorntest.ogv"></source>
+		<source src="assets/popcorntest.webm"></source>
+	</video>
+
+</body>
+</html>
