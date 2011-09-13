@@ -27,89 +27,68 @@
 		return [].slice.call( arrayish );
 	};
 
-	function mediaGroupSetup() {
-		// Declare program references
-		// nodelist: a NodeList of all elements with `mediagroup` attributes
-		// elements: `nodelist` as a real Array
-		// filtereds: object whose properties are the value of a `mediagroup` attribute,
-		//            with values that are arrays of corresponding elements
-		// mediagroups: unique array of each mediagroup name
-		var nodelist = document.querySelectorAll("[mediagroup]"),
-			elements = Array.from( nodelist ),
-			filtereds = {},
-			mediagroups = elements.map(function( elem ) {
-				return elem.getAttribute( "mediagroup" );
-			}).filter(function( val, i, array ) {
-				if ( !filtereds[val] ) {
-					filtereds[ val ] = elements.filter(function( elem ) {
-						return elem.getAttribute( "mediagroup" ) === val;
-					});
-					return true;
-				}
-				return false;
+	function mediaGroupSync( controller, slaves ) {
+
+		if ( slaves[ 0 ].currentTime !== controller.currentTime ) {
+			slaves.forEach(function( slave ) {
+				slave.currentTime = controller.currentTime;
 			});
-
-		// Iterate all collected mediagroup names
-		// Call mediaGroup() with group name and nodelist params
-		mediagroups.forEach(function( group ) {
-			mediaGroup( group, filtereds[ group ] );
-		});
-	}
-
-	function mediaGroupSync( controller, children ) {
-
-		children.forEach(function( child ) {
-			child.currentTime = controller.currentTime;
-		});
+		}
 
 		requestAnimFrame(function() {
-			mediaGroupSync( controller, children );
+			mediaGroupSync( controller, slaves );
 		});
 	}
 
-	function mediaGroupListeners( controller, elements, callback ) {
+	function mediaGroupListeners( controller, slaves, callback ) {
 
-		var events = [ "play", "pause" ];
+		// var events = [ "play", "pause" ];
+		//
+		// // Dispatch events across all slaves elements
+		// events.forEach(function( type, i ) {
+		//
+		// 	// Define listeners for parent controller element
+		// 	controller.addEventListener( type, function() {
+		//
+		// 		var evt = document.createEvent( "Events" );
+		//
+		// 		evt.initEvent(
+		// 			type, true, true, window
+		// 		);
+		//
+		// 		// Delegate events to slaves
+		// 		slaves.forEach(function( slave ) {
+		// 			slave.dispatchEvent( evt );
+		// 		});
+		// 	});
+		//
+		// 	if ( (i + 1) === events.length ) {
+		// 		callback();
+		// 	}
+		// });
 
-		// Dispatch events across all children elements
-		events.forEach(function( type, i ) {
-
-			// Define listeners for parent controller element
-			controller.addEventListener( type, function() {
-
-				var evt = document.createEvent( "Events" );
-
-				evt.initEvent(
-					type, true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null
-				);
-
-				// Delegate events to children
-				children.forEach(function( child ) {
-					cb.dispatchEvent(evt);
-				});
-			});
-
-			if ( (i + 1) === events.length ) {
-				callback();
-			}
-		});
+		callback();
 	}
 
 	function mediaGroup( group, elements ) {
 
-		var controller, children,
+		var controller, slaves,
 			ready = 0;
 
 		// Get the single controller element
 		controller = elements.filter(function( elem ) {
-			return !!elem.controls;
+			return !!elem.controls || elem.getAttribute("controls", true);
 		})[ 0 ];
 
 		// Filter nodelist for all elements that will
 		// be controlled by the	controller element
-		children = elements.filter(function( elem ) {
+		slaves = elements.filter(function( elem ) {
 			return !elem.controls;
 		});
+
+		if ( !controller ) {
+			return;
+		}
 
 		// Declare context sensitive `canplay` handler
 		function canPlay() {
@@ -122,11 +101,8 @@
 				});
 
 				mediaGroupListeners( controller, elements, function() {
-
-					mediaGroupSync( controller, children );
-
+					mediaGroupSync( controller, slaves );
 				});
-
 			}
 		}
 
@@ -143,6 +119,43 @@
 		});
 	}
 
+	function mediaGroupSetup( selector ) {
+		// Declare program references
+		// nodelist: a NodeList of all elements with `mediagroup` attributes
+		// elements: `nodelist` as a real Array
+		// filtereds: object whose properties are the value of a `mediagroup` attribute,
+		//            with values that are arrays of corresponding elements
+		// mediagroups: unique array of each mediagroup name
+		var nodelist = document.querySelectorAll( selector || "[mediagroup]" ),
+			elements = Array.from( nodelist ),
+			filtereds = {},
+			mediagroups;
+
+			// Allow only if no `mediaGroup` property exists
+			elements = elements.filter(function( elem ) {
+				return !elem.mediaGroup;
+			});
+
+			// Filter for groupnames
+			mediagroups = elements.map(function( elem ) {
+				return elem.getAttribute( "mediagroup" );
+			}).filter(function( val, i, array ) {
+				if ( !filtereds[ val ] ) {
+					filtereds[ val ] = elements.filter(function( elem ) {
+						return elem.getAttribute( "mediagroup" ) === val;
+					});
+					return true;
+				}
+				return false;
+			});
+
+		// Iterate all collected mediagroup names
+		// Call mediaGroup() with group name and nodelist params
+		mediagroups.forEach(function( group ) {
+			mediaGroup( group, filtereds[ group ] );
+		});
+	}
+
 	// Listen for mutation events
 	[ "DOMNodeInserted", "DOMAttrModified" ].forEach(function( mutation ) {
 
@@ -153,8 +166,12 @@
 				return element.nodeName === val;
 			});
 
-			if ( valid ) {
-				console.log( event );
+			if ( valid && !element.mediaGroup &&
+					(element.controls || element.getAttribute("controls") === "true") ) {
+
+				setTimeout(function() {
+					mediaGroupSetup( "[mediagroup='" + element.getAttribute("mediagroup") + "']" );
+				}, 100 );
 			}
 		});
 	});
