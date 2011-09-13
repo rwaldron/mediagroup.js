@@ -17,10 +17,11 @@ var sourceElemsHTML = "<source src='assets/popcorntest.mp4'></source>" +
 //  deliriously fast in Chrome: http://jsperf.com/range-vs-range
 var Foo = {
 	range: function(start, stop, step) {
-		var start = start || 0,
-			stop  = stop || start || 0,
-			step  = step || 1,
-			len   = Math.ceil( (stop - start) / step) || 0 ,
+		start = start || 0;
+		stop  = stop || start || 0;
+		step  = step || 1;
+
+		var len   = Math.ceil( (stop - start) / step) || 0 ,
 			idx   = 0,
 			range = [];
 
@@ -72,7 +73,7 @@ test("Creates mediaGroup for new elements", function() {
 		b: document.createElement("video")
 	},
 	keys = Object.keys( createds ),
-	videos
+	videos,
 	expects = 1,
 	count = 0;
 

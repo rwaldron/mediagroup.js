@@ -169,7 +169,7 @@
 			if ( valid && !element.mediaGroup &&
 					(element.controls || element.getAttribute("controls") === "true") ) {
 
-				setTimeout(function() {
+				window.setTimeout(function() {
 					mediaGroupSetup( "[mediagroup='" + element.getAttribute("mediagroup") + "']" );
 				}, 100 );
 			}

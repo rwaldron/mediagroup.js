@@ -9,69 +9,52 @@ exec = require("child_process").exec,
 child;
 
 // Global constants
-const _FILES_ = {
-				src: [
-					"mediagroup.js"
-				]
-			},
-			_SRC_ = "src/",
-			_DIST_ = "dist/";
+FILES = {
+	src: [
+		"src/mediagroup.js"
+	],
+	test: [
+		"test/mediagroup.unit.js"
+	]
+};
+_SRC_ = "src/",
+_DIST_ = "dist/";
 
-const _PROJECT_ = "mediagroup";
-
-
-desc("Uglify JS");
-task("minify", [ "hint" ], function( params ) {
-
-	print( "\nUglifying..." );
-
-	var ast, out,
-	files = _FILES_;
+PROJECT = "mediagroup";
 
 
-	for ( var type in files ) {
+HINTABLES = [ "src", "test" ];
 
-		var _files = files[ type ],
-		all = "";
-
-		// Concatenate JavaScript resources
-		_files.forEach(function(file, i) {
-			if ( file.match(/^.*js$/) && file ) {
-				all += fs.readFileSync( _SRC_ + file ).toString();
-			}
-		});
-
-		// Outout concatenated
-		out = fs.openSync( _DIST_ + _PROJECT_ + ".js", "w+" );
-		fs.writeSync( out, all );
-
-		// Create AST from concatenated sources
-		ast = uglify.parser.parse( all );
-
-		// Open output stream
-		out = fs.openSync( _DIST_ + _PROJECT_ + ".min.js", "w+" );
-
-		// Compress AST
-		ast = uglify.uglify.ast_mangle( ast );
-		ast = uglify.uglify.ast_squeeze( ast );
-
-		// Output regenerated, compressed code
-		fs.writeSync( out, uglify.uglify.gen_code( ast ) );
-	}
+HINTS = {
+	// `data: true` can be used by us to output information collected and available via jshint.data()
+	src: { unused: true, unuseds: true, devel: true, undef: true, noempty: true, evil: true, forin: false, maxerr: 100 },
+	test: { devel: true, evil: true, forin: false, maxerr: 100 }
+};
 
 
-	print( "Success!\n" );
-});
+SILENT = process.argv[ process.argv.length - 1 ] === "--silent" || false;
+VERBOSE = process.argv[ process.argv.length - 1 ] === "--verbose" || false;
 
-desc("JSHint");
-task("hint", [], function( params ) {
 
-	print( "\nHinting...\n" );
 
-	var files = _FILES_;
+desc( "Hint all JavaScript program files with JSHint *" );
+task( "hint", [], function( params ) {
 
-	function hintFile( file ) {
-		var src = fs.readFileSync( _SRC_ + file, "utf8"),
+	print( "\nHinting..." );
+	!SILENT && print( "\n" );
+
+	var files = FILES,
+	hints = HINTS,
+	count = 0;
+
+	function hintFile( file, hint, set ) {
+
+		var errors, warning, data,
+
+		found = 0,
+
+		src = fs.readFileSync( file, "utf8"),
+
 		ok = {
 			// warning.reason
 			"Expected an identifier and instead saw 'undefined' (a reserved word).": true,
@@ -84,47 +67,129 @@ task("hint", [], function( params ) {
 			// warning.raw
 			"Expected an identifier and instead saw \'{a}\' (a reserved word).": true
 		},
-		found = 0, errors, warning;
 
-		jshint( src, { evil: true, forin: false, maxerr: 100 });
+		dataProps = {
+			unuseds: true,
+			implieds: true,
+			globals: true
+		},
+		props;
+
+		jshint( src, hint );
 
 		errors = jshint.errors;
 
+		if ( hint.data ) {
+
+			data = jshint.data();
+
+			Object.keys( dataProps ).forEach(function( prop ) {
+				if ( data[ prop ] ) {
+					console.log( prop, data[ prop ] );
+				}
+			});
+		}
 
 		for ( var i = 0; i < errors.length; i++ ) {
 			warning = errors[i];
 
-			if ( warning ) {
-				//print( w );
+			// If a warning exists for this error
+			if ( warning &&
+					// If the warning has evidence and the evidence is NOT a single line comment
+					( warning.evidence && !/^\/\//.test( warning.evidence.trim() ) )
+				) {
+
+				//console.dir( warning );
+
 				if ( !ok[ warning.reason ] && !ok[ warning.raw ] ) {
 					found++;
 
 					print( "\n" + file + " at L" + warning.line + " C" + warning.character + ": " + warning.reason );
-					print( "\n" + warning.evidence + "\n");
+					print( "\n    " + warning.evidence.trim() + "\n");
 
 				}
 			}
 		}
+
 		if ( found > 0 ) {
-			print( "\n\n" + found + " Error(s) found.\n" );
+
+			print( "\n    " + set + ": \n" );
+			print( "\n\n" + found + " Error(s) found in: " + file + "\n\n" );
 
 		} else {
-			print( "    " + file + " => Success!\n" );
+
+			!SILENT && print( "        PASS: " + file + "\n" );
 		}
 	}
 
-	files.src.forEach(function( file, i ) {
 
-		hintFile( file );
-	})
+	HINTABLES.forEach(function( set, i ) {
 
+		var fileSet = files[ set ];
+
+		if ( fileSet && fileSet.length ) {
+
+			!SILENT && print( "\n    " + set + ": \n" );
+
+			files[ set ].forEach(function( file, i ) {
+
+				hintFile( file, hints[ set ], set );
+
+				count++;
+			});
+		}
+
+		if ( HINTABLES.length - 1 === i ) {
+			print("\nComplete: " + count + " files hinted\n");
+		}
+	});
+});
+
+
+
+desc("Uglify JS");
+task("minify", [ "hint" ], function( params ) {
+
+	print( "\nUglifying..." );
+
+	var ast, out,
+	all = "",
+	files = FILES.src;
+
+
+	// Concatenate JavaScript resources
+	files.forEach(function(file, i) {
+		if ( file.match(/^.*js$/) && file ) {
+			all += fs.readFileSync( file ).toString();
+		}
+	});
+
+	// Outout concatenated
+	out = fs.openSync( _DIST_ + PROJECT + ".js", "w+" );
+	fs.writeSync( out, all );
+
+	// Create AST from concatenated sources
+	ast = uglify.parser.parse( all );
+
+	// Open output stream
+	out = fs.openSync( _DIST_ + PROJECT + ".min.js", "w+" );
+
+	// Compress AST
+	ast = uglify.uglify.ast_mangle( ast );
+	ast = uglify.uglify.ast_squeeze( ast );
+
+	// Output regenerated, compressed code
+	fs.writeSync( out, uglify.uglify.gen_code( ast ) );
+
+
+	print( "Success!\n" );
 });
 
 task("clean", [], function( params ) {
 
 	print( "\nCleaning...\n\n" );
 
-	_FILES_.src.forEach(function( file, i ) {
+	FILES.src.forEach(function( file, i ) {
 
 
 		exec("rm " + _DIST_ + file,
