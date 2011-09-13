@@ -8,7 +8,7 @@
  */
 (function( window, document ) {
 
-	window.requestAnimFrame = (function( window ) {
+	var requestAnimFrame = (function( window ) {
 		var suffix = "equestAnimationFrame",
 			rAF = [ "r", "webkitR", "mozR", "msR", "oR" ].filter(function( val ) {
 				return val + suffix in window;
