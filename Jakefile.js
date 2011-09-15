@@ -153,7 +153,9 @@ task("minify", [ "hint" ], function( params ) {
 	print( "\nUglifying..." );
 
 	var ast, out,
-	all = "",
+	all = "/*! mediagroup.js, Copyright 2011, Rick Waldron, MIT Licensed " +
+	" * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#assigning-a-media-controller-declaratively " +
+	" */ \n",
 	files = FILES.src;
 
 
@@ -189,26 +191,27 @@ task("clean", [], function( params ) {
 
 	print( "\nCleaning...\n\n" );
 
-	FILES.src.forEach(function( file, i ) {
+	fs.readdir( _DIST_, function( err, files ) {
+		files.forEach(function( file ) {
 
+			exec("rm " + file,
+				function( error, stdout, stderr ) {
 
-		exec("rm " + _DIST_ + file,
-			function( error, stdout, stderr ) {
-
-				if ( error !== null && !/No such file/.test( error ) ) {
-					console.log( error );
-				} else {
-					// no such file errors will be allowed through, just ignore them
-					if ( error !== null ) {
-						console.log("  deleted: " + file );
+					if ( error !== null && !/No such file/.test( error ) ) {
+						console.log( error );
+					} else {
+						// no such file errors will be allowed through, just ignore them
+						if ( error !== null ) {
+							console.log("  deleted: " + file );
+						}
 					}
 				}
-			}
-		);
+			);
 
-		if ( files.length - 1 === i ) {
-			print("Completed.\n");
-		}
+			if ( files.length - 1 === i ) {
+				print("Completed.\n");
+			}
+		});
 	});
 });
 

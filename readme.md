@@ -2,9 +2,19 @@
 
 Adds declarative support for `mediagroup` attributes on HTML5 Media Elements (video/audio)
 
-Create a Picture-In-Picture where the inner video is synced with the outer video
+
+## Usage
+
+To use the `mediagroup` attribute, simply include a built copy of `mediagroup.js` script in your HTML.
+
+
+## Example
+
+Create a Picture-In-Picture where the inner video is synced with the outer video:
 
 ```html
+
+<script src="mediagroup.js"></script>
 <video class="controller" controls mediagroup="pip">
 	<source src="assets/popcorntest.mp4"></source>
 	<source src="assets/popcorntest.ogv"></source>
