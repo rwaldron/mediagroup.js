@@ -5,7 +5,7 @@ Adds declarative support for `mediagroup` attributes on HTML5 Media Elements (vi
 
 ## Usage
 
-To use the `mediagroup` attribute, simply include a built copy of `mediagroup.js` script in your HTML.
+To use the `mediagroup` attribute, simply include a built copy of `mediagroup.js` script in your HTML. You can get this script by clicking "Downloads" on this page. Otherwise, fork, clone and build your own copy from the repo.
 
 
 ## Example
