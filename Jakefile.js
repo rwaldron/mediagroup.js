@@ -152,10 +152,8 @@ task("minify", [ "hint" ], function( params ) {
 
 	print( "\nUglifying..." );
 
-	var ast, out,
-	all = "/*! mediagroup.js, Copyright 2011, Rick Waldron, MIT Licensed " +
-	" * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#assigning-a-media-controller-declaratively " +
-	" */ \n",
+	var ast, out, min,
+	all = "",
 	files = FILES.src;
 
 
@@ -179,10 +177,17 @@ task("minify", [ "hint" ], function( params ) {
 	// Compress AST
 	ast = uglify.uglify.ast_mangle( ast );
 	ast = uglify.uglify.ast_squeeze( ast );
+	ast = uglify.uglify.gen_code( ast );
+
+	min = [
+		"/*! mediagroup.js, Copyright 2011, Rick Waldron, MIT Licensed " +
+		" * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#assigning-a-media-controller-declaratively " +
+		" */",
+		ast
+	];
 
 	// Output regenerated, compressed code
-	fs.writeSync( out, uglify.uglify.gen_code( ast ) );
-
+	fs.writeSync( out, min.join("\n") );
 
 	print( "Success!\n" );
 });
