@@ -29,9 +29,11 @@
 
 	function mediaGroupSync( controller, slaves ) {
 
-		if ( slaves[ 0 ].currentTime !== controller.currentTime ) {
+		if ( slaves.length ) {
 			slaves.forEach(function( slave ) {
-				slave.currentTime = controller.currentTime;
+				if ( slave.currentTime !== controller.currentTime ) {
+					slave.currentTime = controller.currentTime;
+				}
 			});
 		}
 
