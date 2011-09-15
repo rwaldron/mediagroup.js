@@ -6,7 +6,7 @@
  *
  * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#assigning-a-media-controller-declaratively
  */
-(function( window, document ) {
+(function( window, document, mediagroup ) {
 
 	var requestAnimFrame = (function( window ) {
 		var suffix = "equestAnimationFrame",
@@ -115,7 +115,7 @@
 		elements.forEach(function( elem ) {
 
 			// Set the actual element IDL property `mediaGroup`
-			elem.mediaGroup = elem.getAttribute( "mediagroup" );
+			elem.mediaGroup = elem.getAttribute( mediagroup );
 
 			elem.addEventListener( "canplay", canPlay, false );
 		});
@@ -128,7 +128,7 @@
 		// filtereds: object whose properties are the value of a `mediagroup` attribute,
 		//            with values that are arrays of corresponding elements
 		// mediagroups: unique array of each mediagroup name
-		var nodelist = document.querySelectorAll( selector || "[mediagroup]" ),
+		var nodelist = document.querySelectorAll( selector || "[" + mediagroup + "]" ),
 			elements = Array.from( nodelist ),
 			filtereds = {},
 			mediagroups;
@@ -140,11 +140,11 @@
 
 			// Filter for groupnames
 			mediagroups = elements.map(function( elem ) {
-				return elem.getAttribute( "mediagroup" );
+				return elem.getAttribute( mediagroup );
 			}).filter(function( val, i, array ) {
 				if ( !filtereds[ val ] ) {
 					filtereds[ val ] = elements.filter(function( elem ) {
-						return elem.getAttribute( "mediagroup" ) === val;
+						return elem.getAttribute( mediagroup ) === val;
 					});
 					return true;
 				}
@@ -178,7 +178,7 @@
 					(element.controls || element.getAttribute("controls") === "true") ) {
 
 				window.setTimeout(function() {
-					mediaGroupSetup( "[mediagroup='" + element.getAttribute("mediagroup") + "']" );
+					mediaGroupSetup( "[" + mediagroup + "='" + element.getAttribute( mediagroup ) + "']" );
 				}, 100 );
 			}
 		});
@@ -199,4 +199,4 @@
 
 	// TODO: How to ensure that new nodes with mediagroup attrs are recognized
 
-})( this, this.document );
+})( this, this.document, "mediagroup" );
